@@ -1,3 +1,8 @@
+import commands
+
+# Before running any script
+#commands.release_hardware()
+
 import adafruit_ntp
 import adafruit_requests
 import board
@@ -9,9 +14,11 @@ import rtc
 import socketpool
 import ssl
 import time
+import wifiman
 import wifi
 from adafruit_sht31d import SHT31D
 from adafruit_ssd1306 import SSD1306_I2C
+
 
 
 pixels = neopixel.NeoPixel(board.GP22, 1)
@@ -20,23 +27,12 @@ i2c0 = busio.I2C(scl=board.GP17, sda=board.GP16)
 display = SSD1306_I2C(128, 64, i2c0)
 sht_sensor = SHT31D(i2cl)
 
-SSID = ""
-PASSWORD = ""
-API_KEY = ""
-latitude = 0.0
-longitude = -0.0
-
-try:
-    if not wifi.radio.enabled:
-        wifi.radio.enabled = True
-    print("Connecting to Wi-Fi...")
-    wifi.radio.connect(SSID, PASSWORD, timeout=5.0)
-    print("Connected")
-except Exception as e:
-    print(f"Wi-Fi connection failed: {e}")
+API_KEY = "6d6b9e63d190c3f728870a2363fa4076"
+latitude = 38.4809
+longitude = -82.6442
 
 
-pool = socketpool.SocketPool(wifi.radio)
+pool = socketpool.SocketPool(wifiman.radio)
 ssl_context = ssl.create_default_context()
 requests = adafruit_requests.Session(pool, ssl_context)
 
@@ -65,10 +61,7 @@ def fetch_weather_data_with_retries(requests_session, url, retries=3, delay=2):
         attempt += 1
         if attempt < retries:
             print(f"Retrying in {delay} seconds...")
-            wifi.radio.enabled = False
             time.sleep(delay)
-            wifi.radio.enabled = True
-            wifi.radio.connect(SSID, PASSWORD, timeout=5.0)
         else:
             print("Max retries reached. Failing.")
             raise RuntimeError("Failed to fetch weather data after retries.")
@@ -212,7 +205,7 @@ while True:
     # Print temperature, humidity, and color
     display_text(f"Temp: {temp_f:.2f}/{temperature:.2f}F", 0)
     display_text(f"Humidity: {humi:.2f}/{humidity:.2f}%", 2)
-    display_text(f"IP: {wifi.radio.ipv4_address}", 6)
+    display_text(f"IP: {wifiman.ipaddr}", 6)
     print("Weather Metrics and Sensors Displayed...\n")
 
     # Delay
