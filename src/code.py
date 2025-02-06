@@ -16,6 +16,15 @@ COMMANDS = {
     "dmesg": commands.dmesg,
     "exit": lambda: print("Exiting shell.") or commands.exit(),
     "quit": lambda: print("Exiting shell.") or microcontroller.reset(),
+    "touch": commands.touch,
+    "mkdir": commands.mkdir,
+    "rmdir": commands.rmdir,
+    "mv": commands.mv,
+    "cp": commands.cp,
+    "echo": commands.echo,
+    "df": commands.df,
+    "whoami": commands.whoami,
+    "memuse": lambda: commands.memuse("print"),
 }
 
 def shell():
@@ -43,8 +52,24 @@ def shell():
                 commands.rm(input_str[3:].strip())
             elif input_str.startswith("uptime"):
                 commands.uptime(start_time)
-            elif input_str.startswith("memuse"):
-                commands.memuse("print")
+            elif input_str.startswith("head "):
+                parts = input_str.split()
+                filename = parts[1]
+                n = int(parts[2]) if len(parts) > 2 else 10
+                commands.head(filename, n)
+            elif input_str.startswith("tail "):
+                parts = input_str.split()
+                filename = parts[1]
+                n = int(parts[2]) if len(parts) > 2 else 10
+                commands.tail(filename, n)
+            elif input_str.startswith("echo "):
+                parts = input_str.split('>')
+                if len(parts) > 1:
+                    text = parts[0][5:].strip()
+                    filename = parts[1].strip()
+                    commands.echo(text, filename)
+                else:
+                    commands.echo(input_str[5:].strip())
             # Handle simple commands (without arguments)
             elif input_str in COMMANDS:
                 COMMANDS[input_str]()  # Call the command function with no args
