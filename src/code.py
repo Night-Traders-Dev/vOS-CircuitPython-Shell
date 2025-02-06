@@ -9,15 +9,17 @@ COMMANDS = {
     "pwd": commands.pwd,
     "clear": commands.clear,
     "help": commands.show_help,
-    "memuse": commands.memuse,
     "wifi.connect": wifiman.connect,
     "wifi.disconnect": commands.disconnect,
     "ifconfig": commands.ifconfig,
+    "version": commands.read_vos_version,
+    "dmesg": commands.dmesg,
     "exit": lambda: print("Exiting shell.") or commands.exit(),
     "quit": lambda: print("Exiting shell.") or microcontroller.reset(),
 }
 
 def shell():
+    commands.read_vos_version("dmesg")
     start_time = time.monotonic()
     wifiman.connect()
     commands.clear()  # Auto-clear screen on start
@@ -41,6 +43,8 @@ def shell():
                 commands.rm(input_str[3:].strip())
             elif input_str.startswith("uptime"):
                 commands.uptime(start_time)
+            elif input_str.startswith("memuse"):
+                commands.memuse("print")
             # Handle simple commands (without arguments)
             elif input_str in COMMANDS:
                 COMMANDS[input_str]()  # Call the command function with no args

@@ -6,6 +6,10 @@ import os
 import time
 import gc
 import wifiman
+from dmesg import dmesg_print, dmesg_log
+
+def dmesg():
+    dmesg_print()
 
 # Function to clear the screen
 def clear():
@@ -55,13 +59,15 @@ def rm(filename):
 def run(script_name):
     try:
         if script_name.endswith('.py') and script_name in os.listdir():
-            print(f"Running {script_name}...")
+            dmesg_log(f"Running {script_name}...")
+            memuse("dmesg")
             with open(script_name) as f:
                 exec(f.read(), {})
+            memuse("dmesg")
         else:
             print(f"Error: {script_name} not found or invalid file type.")
     except Exception as e:
-        print(f"Error running {script_name}: {e}")
+        dmesg_log(f"Error running {script_name}: {e}")
 
 # Function to display available commands
 def show_help():
@@ -89,17 +95,22 @@ def connect():
 def disconnect():
     wifiman.disconnect()
 
-def memuse():
+def memuse(call):
     gc.collect()  # Run garbage collection to get accurate memory usage
     total_ram = gc.mem_alloc() + gc.mem_free()
     used_ram = gc.mem_alloc()
     free_ram = gc.mem_free()
     usage_percent = (used_ram / total_ram) * 100 if total_ram > 0 else 0
 
-    print(f"Used RAM: {used_ram} bytes")
-    print(f"Total RAM: {total_ram} bytes")
-    print(f"Free RAM: {free_ram} bytes")
-    print(f"Memory Usage: {usage_percent:.2f}%")
+    usedmsg = (f"Used RAM: {used_ram:,} bytes")
+    totalmsg = (f"Total RAM: {total_ram:,} bytes")
+    freemsg  = (f"Free RAM: {free_ram:,} bytes")
+    percmsg = (f"Memory Usage: {usage_percent:.2f}%")
+    msg_list = [usedmsg, totalmsg, freemsg, percmsg]
+    for msg in msg_list:
+        if call == "print":
+            print(msg)
+        dmesg_log(msg)
 
 def uptime(start_time):
     elapsed = time.monotonic() - start_time
@@ -132,3 +143,19 @@ def release_hardware():
         print("Hardware released successfully.")
     except Exception as e:
         print(f"Error releasing hardware: {e}")
+
+
+def read_vos_version(call):
+    try:
+        # Open the file in read mode
+        with open("/vos.info", "r") as file:
+            # Read the first line (version)
+            version = file.readline().strip()  # Remove any extra spaces or newlines
+            msg = (f"vOS version: {version}")
+            if call == "dmesg":
+                dmesg_log(msg)
+            print(msg)
+    except FileNotFoundError:
+        print("Error: vos.info file not found.")
+    except Exception as e:
+        print(f"Error reading vos.info: {e}")
