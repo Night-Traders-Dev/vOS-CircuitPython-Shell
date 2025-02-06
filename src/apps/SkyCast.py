@@ -27,7 +27,7 @@ i2c0 = busio.I2C(scl=board.GP17, sda=board.GP16)
 display = SSD1306_I2C(128, 64, i2c0)
 sht_sensor = SHT31D(i2cl)
 
-API_KEY = "6d6b9e63d190c3f728870a2363fa4076"
+API_KEY = ""
 latitude = 38.4809
 longitude = -82.6442
 

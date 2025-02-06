@@ -1,6 +1,7 @@
 import neopixel
 import busio
 import board
+import storage
 import sys
 import os
 import time
@@ -19,8 +20,23 @@ def clear():
 def ls():
     try:
         files = os.listdir()
+        print(f"{'Name':<20} {'Type':<10} {'Size (bytes)':>12}")
+        print("-" * 44)
+
         for file in files:
-            print(file)
+            # Get file stats
+            stats = os.stat(file)
+            size = stats[6]  # File size in bytes
+
+            # Check if it's a directory
+            if os.stat(file)[0] & 0x4000:
+                file_type = "Directory"
+            else:
+                file_type = "File"
+
+            # Display the file with formatting
+            print(f"{file:<20} {file_type:<10} {size:>12}")
+
     except Exception as e:
         print(f"Error listing files: {e}")
 
