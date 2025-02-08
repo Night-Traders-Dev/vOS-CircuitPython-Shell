@@ -9,6 +9,10 @@ import gc
 import wifiman
 from dmesg import dmesg_print, dmesg_log
 
+def storage_init():
+    storage.remount("/", readonly=False)
+
+
 def dmesg():
     dmesg_print()
 

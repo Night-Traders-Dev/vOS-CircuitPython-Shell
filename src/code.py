@@ -28,6 +28,7 @@ COMMANDS = {
 }
 
 def shell():
+#    commands.storage_init()
     commands.read_vos_version("dmesg")
     start_time = time.monotonic()
     wifiman.connect()
@@ -44,6 +45,8 @@ def shell():
             # Handle commands with arguments (e.g., cd, run, etc.)
             if input_str.startswith("cd "):
                 commands.cd(input_str[3:].strip())
+            if input_str.startswith("cp "):
+                commands.cp(input_str[3:].strip())
             elif input_str.startswith("run "):
                 commands.run(input_str[4:].strip())
             elif input_str.startswith("cat "):
@@ -52,6 +55,8 @@ def shell():
                 commands.rm(input_str[3:].strip())
             elif input_str.startswith("uptime"):
                 commands.uptime(start_time)
+            elif input_str.startswith("touch "):
+                commands.touch(input_str[6:].strip())
             elif input_str.startswith("head "):
                 parts = input_str.split()
                 filename = parts[1]
